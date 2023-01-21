@@ -4,14 +4,12 @@
 
 	function elementToJS(key, parent, element) {
 		let current = parent + '_' + element.tagName + key;
-		codeInJS += `${current} = document.createElement("${element.tagName.toLowerCase()}")\n`;
+		codeInJS += `const ${current} = document.createElement("${element.tagName.toLowerCase()}")\n`;
 		for (let key in element.attributes) {
 			if (!isNaN(key)) {
-				codeInJS += `attr("${element.attributes[key].nodeName}", "${element.attributes[key].value}")\n`;
+				codeInJS += `${current}.setAttribute("${element.attributes[key].nodeName}", "${element.attributes[key].value}")\n`;
 			}
 		}
-
-		codeInJS += ' \n';
 
 		// hadChildren
 		if (element.childNodes.length > 0) {
@@ -19,6 +17,7 @@
 				if (!isNaN(key)) {
 					if (element.childNodes[key].nodeName == '#text') {
 						codeInJS += `${current}.append("${element.childNodes[key].nodeValue}")\n`;
+                        codeInJS += ' \n';
 					} else {
 						elementToJS(key, current, element.childNodes[key]);
 					}
@@ -26,7 +25,7 @@
 			}
 		}
 
-		codeInJS += `${parent}.append("${current}")\n`;
+		codeInJS += `${parent}.append(${current})\n`;
 	}
 	function stringToJS(string) {
 		codeInJS = '';
@@ -34,14 +33,12 @@
 		c.innerHTML = string;
 		let elem = c.firstChild;
 		let current = elem.tagName;
-		codeInJS += `${current} = document.createElement("${elem.tagName.toLowerCase()}")\n`;
+		codeInJS += `const ${current} = document.createElement("${elem.tagName.toLowerCase()}")\n`;
 		for (let key in elem.attributes) {
 			if (!isNaN(key)) {
-				codeInJS += `attr("${elem.attributes[key].nodeName}", "${elem.attributes[key].value}")\n`;
+				codeInJS += `${current}.setAttribute("${elem.attributes[key].nodeName}", "${elem.attributes[key].value}")\n`;
 			}
 		}
-
-		codeInJS += ' \n';
 
 		// hadChildren
 		if (elem.childNodes.length > 0) {
@@ -49,6 +46,7 @@
 				if (!isNaN(key)) {
 					if (elem.childNodes[key].nodeName === '#text') {
 						codeInJS += `${current}.append("${elem.childNodes[key].nodeValue}")\n`;
+                        codeInJS += ' \n';
 					} else {
 						elementToJS(key, elem.tagName, elem.childNodes[key]);
 					}
@@ -71,7 +69,7 @@
 			on:click={() => stringToJS(codeText)}
 			class="px-2 py-1 bg-gray-300 rounded-md drop-shadow-md">Generate</button
 		>
-		<p>Result:</p>
+		<p>Code Result:</p>
 		<div class="relative">
 			<textarea
 				id="codeElement"
@@ -84,5 +82,6 @@
 				on:click={copyText}>Copy</button
 			>
 		</div>
+		<div id="rendered" />
 	</div>
 </div>
